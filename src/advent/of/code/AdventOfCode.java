@@ -2,6 +2,8 @@ package advent.of.code;
 
 import java.io.File;
 import java.io.FileNotFoundException;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
 import java.util.HashMap;
 import java.util.Scanner;
 
@@ -13,8 +15,44 @@ public class AdventOfCode {
         Day_1();
         Day_2();
         Day_3();
+        Day_4();
     }
-    
+    /*
+    Santa needs help mining some AdventCoins (very similar to bitcoins) to use as gifts for all the economically forward-thinking little girls and boys.
+
+To do this, he needs to find MD5 hashes which, in hexadecimal, start with at least five zeroes. The input to the MD5 hash is some secret key (your puzzle input, given below) followed by a number in decimal. To mine AdventCoins, you must find Santa the lowest positive number (no leading zeroes: 1, 2, 3, ...) that produces such a hash.
+
+For example:
+
+If your secret key is abcdef, the answer is 609043, because the MD5 hash of abcdef609043 starts with five zeroes (000001dbbfa...), and it is the lowest such number to do so.
+If your secret key is pqrstuv, the lowest number it combines with to make an MD5 hash starting with five zeroes is 1048970; that is, the MD5 hash of pqrstuv1048970 looks like 000006136ef....
+
+Part2: Now find one that starts with six zeroes.
+    */
+    public static void Day_4() {
+        System.out.println("Day4");
+        String input = "yzbqklnj";
+        int i = 0;
+        try {
+            MessageDigest md = MessageDigest.getInstance("MD5");
+            while(i <= Integer.MAX_VALUE){
+                md.update((input + Integer.toString(i)).getBytes());
+                byte[] digest = md.digest();
+                if( (((digest[0] >> 7) & 1) * 8 + ((digest[0] >> 6) & 1) * 4 + ((digest[0] >> 5) & 1) * 2 + ((digest[0] >> 4) & 1)) == 0 &&
+                    (((digest[0] >> 3) & 1) * 8 + ((digest[0] >> 2) & 1) * 4 + ((digest[0] >> 1) & 1) * 2 + (digest[0] & 1)) == 0 &&
+                    (((digest[1] >> 7) & 1) * 8 + ((digest[1] >> 6) & 1) * 4 + ((digest[1] >> 5) & 1) * 2 + ((digest[1] >> 4) & 1)) == 0 &&
+                    (((digest[1] >> 3) & 1) * 8 + ((digest[1] >> 2) & 1) * 4 + ((digest[1] >> 1) & 1) * 2 + (digest[1] & 1)) == 0 &&
+                    (((digest[2] >> 7) & 1) * 8 + ((digest[2] >> 6) & 1) * 4 + ((digest[2] >> 5) & 1) * 2 + ((digest[2] >> 4) & 1)) == 0 &&
+                    (((digest[2] >> 3) & 1) * 8 + ((digest[2] >> 2) & 1) * 4 + ((digest[2] >> 1) & 1) * 2 + (digest[2] & 1)) == 0
+                    /* Comment last row for part 1 */
+                    ){
+                    System.out.println("The decimal is: " + Integer.toString(i));
+                    break;
+                }
+                i = i + 1;
+            }
+        } catch (NoSuchAlgorithmException ex) {}
+    }
     /*
     Santa is delivering presents to an infinite two-dimensional grid of houses.
 
