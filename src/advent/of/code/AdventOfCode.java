@@ -4,6 +4,7 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Scanner;
 
@@ -12,10 +13,240 @@ public class AdventOfCode {
         Challenge from http://adventofcode.com/
     */
     public static void main(String[] args) {
+        /*
         Day_1();
         Day_2();
         Day_3();
         Day_4();
+        Day_5();
+        */
+        Day_6_2();
+    }
+    public static void Day_6_2(){
+        try{
+            int[][] grid = new int[1000][1000];
+            for(int[] array : grid){
+                Arrays.fill(array, 0);
+            }
+            Scanner scanner = new Scanner(new File(System.getProperty("user.dir") + "\\Day6Input.txt"));
+            String[] coordinates;
+            int i, j, k, l, temp, counter = 0;
+            while(scanner.hasNext()){
+                if(scanner.next().equals("turn")){
+                    if(scanner.next().equals("on")){
+                        coordinates = scanner.next().split(",");
+                        i = Integer.parseInt(coordinates[0]);
+                        j = Integer.parseInt(coordinates[1]);
+                        scanner.next();
+                        coordinates = scanner.next().split(",");
+                        k = Integer.parseInt(coordinates[0]);
+                        l = Integer.parseInt(coordinates[1]);
+                        while(i <= k){
+                            temp = j;
+                            while(j <= l){
+                                grid[i][j] = grid[i][j] + 1;
+                                j = j + 1;
+                            }
+                            j = temp;
+                            i = i + 1;
+                        }
+                    }
+                    else{
+                        coordinates = scanner.next().split(",");
+                        i = Integer.parseInt(coordinates[0]);
+                        j = Integer.parseInt(coordinates[1]);
+                        scanner.next();
+                        coordinates = scanner.next().split(",");
+                        k = Integer.parseInt(coordinates[0]);
+                        l = Integer.parseInt(coordinates[1]);
+                        while(i <= k){
+                            temp = j;
+                            while(j <= l){
+                                if(grid[i][j] != 0){
+                                    grid[i][j] = grid[i][j] - 1;
+                                }
+                                j = j + 1;
+                            }
+                            j = temp;
+                            i = i + 1;
+                        }
+                    }
+                }
+                else{
+                    coordinates = scanner.next().split(",");
+                    i = Integer.parseInt(coordinates[0]);
+                    j = Integer.parseInt(coordinates[1]);
+                    scanner.next();
+                    coordinates = scanner.next().split(",");
+                    k = Integer.parseInt(coordinates[0]);
+                    l = Integer.parseInt(coordinates[1]);
+                    while(i <= k){
+                        temp = j;
+                        while(j <= l){
+                            grid[i][j] = grid[i][j] + 2;
+                            j = j + 1;
+                        }
+                        j = temp;
+                        i = i + 1;
+                    }
+                }
+            }
+            for(int[] col : grid){
+                for(int value : col){
+                    counter = counter + value;
+                }
+            }
+            System.out.println("Total brightness: " + counter);
+        } catch(FileNotFoundException ex){}
+    }
+    
+    public static void Day_6_1(){
+        try{
+            boolean[][] grid = new boolean[1000][1000];
+            for(boolean[] array : grid){
+                Arrays.fill(array, false);
+            }
+            Scanner scanner = new Scanner(new File(System.getProperty("user.dir") + "\\Day6Input.txt"));
+            String[] coordinates;
+            int i, j, k, l, temp, counter = 0;
+            while(scanner.hasNext()){
+                if(scanner.next().equals("turn")){
+                    if(scanner.next().equals("on")){
+                        coordinates = scanner.next().split(",");
+                        i = Integer.parseInt(coordinates[0]);
+                        j = Integer.parseInt(coordinates[1]);
+                        scanner.next();
+                        coordinates = scanner.next().split(",");
+                        k = Integer.parseInt(coordinates[0]);
+                        l = Integer.parseInt(coordinates[1]);
+                        while(i <= k){
+                            temp = j;
+                            while(j <= l){
+                                grid[i][j] = true;
+                                j = j + 1;
+                            }
+                            j = temp;
+                            i = i + 1;
+                        }
+                    }
+                    else{
+                        coordinates = scanner.next().split(",");
+                        i = Integer.parseInt(coordinates[0]);
+                        j = Integer.parseInt(coordinates[1]);
+                        scanner.next();
+                        coordinates = scanner.next().split(",");
+                        k = Integer.parseInt(coordinates[0]);
+                        l = Integer.parseInt(coordinates[1]);
+                        while(i <= k){
+                            temp = j;
+                            while(j <= l){
+                                grid[i][j] = false;
+                                j = j + 1;
+                            }
+                            j = temp;
+                            i = i + 1;
+                        }
+                    }
+                }
+                else{
+                    coordinates = scanner.next().split(",");
+                    i = Integer.parseInt(coordinates[0]);
+                    j = Integer.parseInt(coordinates[1]);
+                    scanner.next();
+                    coordinates = scanner.next().split(",");
+                    k = Integer.parseInt(coordinates[0]);
+                    l = Integer.parseInt(coordinates[1]);
+                    while(i <= k){
+                        temp = j;
+                        while(j <= l){
+                            grid[i][j] = !grid[i][j];
+                            j = j + 1;
+                        }
+                        j = temp;
+                        i = i + 1;
+                    }
+                }
+            }
+            for(boolean[] col : grid){
+                for(boolean value : col){
+                    if(value){
+                        counter = counter + 1;
+                    }
+                }
+            }
+            System.out.println("Lights lit: " + counter);
+        } catch(FileNotFoundException ex){}
+    }
+    public static void Day_5(){
+        try {
+            System.out.println("Day5");
+            /* Part 1
+            Scanner scanner = new Scanner(new File(System.getProperty("user.dir") + "\\Day5Input.txt"));
+            String text;
+            int counter = 0;
+            while(scanner.hasNextLine()){
+                text = scanner.nextLine();
+                if( !text.contains("ab") && !text.contains("cd") && !text.contains("pq") && !text.contains("xy") &&
+                    (text.contains("aa") || text.contains("bb") || text.contains("cc") || text.contains("dd") ||
+                    text.contains("ee") || text.contains("ff") || text.contains("gg") || text.contains("hh") || 
+                    text.contains("ii") || text.contains("jj") || text.contains("kk") || text.contains("ll") || 
+                    text.contains("mm") || text.contains("nn") || text.contains("oo") || text.contains("pp") || 
+                    text.contains("qq") || text.contains("rr") || text.contains("ss") || text.contains("tt") || 
+                    text.contains("uu") || text.contains("vv") || text.contains("ww") || text.contains("xx") || 
+                    text.contains("yy") || text.contains("zz")) && (num_contain(text,'a') + num_contain(text,'e') +
+                    num_contain(text,'i') + num_contain(text,'o') + num_contain(text,'u') > 2)
+                    ){
+                    counter = counter + 1;
+                }
+            }
+            System.out.println("Nice strings: " + counter);
+            */
+            Scanner scanner = new Scanner(new File(System.getProperty("user.dir") + "\\Day5Input.txt"));
+            String text;
+            int counter = 0, i, length, j, length2;
+            boolean contain1, contain2;
+            while(scanner.hasNextLine()){
+                text = scanner.nextLine();
+                contain1 = false; contain2 = false;
+                i = 0; length = text.length() - 3;
+                while(i < length){
+                    if(contain1){
+                        break;
+                    }
+                    j = i + 2; length2 = length + 2;
+                    while(j < length2){
+                        if(text.charAt(i) == text.charAt(j) && text.charAt(i + 1) == text.charAt(j + 1)){
+                            contain1 = true;
+                            break;
+                        }
+                        j = j + 1;
+                    }
+                    i = i + 1;
+                }
+                i = 0; length = text.length() - 2;
+                while(i < length){
+                    if(text.charAt(i) == text.charAt(i + 2)){
+                        contain2 = true;
+                        break;
+                    }
+                    i = i + 1;
+                }
+                if(contain1 && contain2){
+                    counter = counter + 1;
+                }
+            }
+            System.out.println("Nice strings: " + counter);
+        } catch (FileNotFoundException ex) {}
+    }
+    
+    public static int num_contain(String s, char c){
+        int counter = 0;
+        for(int i = 0; i < s.length(); i++){
+            if(s.charAt(i) == c){
+                counter = counter + 1;
+            }
+        }
+        return counter;
     }
     /*
     Santa needs help mining some AdventCoins (very similar to bitcoins) to use as gifts for all the economically forward-thinking little girls and boys.
