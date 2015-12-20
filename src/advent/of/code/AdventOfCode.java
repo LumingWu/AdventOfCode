@@ -31,9 +31,44 @@ public class AdventOfCode {
         Day_6_2();
         Day_7();
         Day_8();
-        */
         Day_9();
+        */
+        Day_10();
     }
+    
+    public static void Day_10(){
+        String s = "1321131112";
+        LinkedList<Integer> list = new LinkedList<Integer>();
+        for(char e : s.toCharArray()){
+            list.addLast(e - 48);
+        }
+        System.out.println(recursiveParse(list, 50));
+    }
+    
+    public static int recursiveParse(LinkedList<Integer> list, int times){
+        if(times == 0){
+            return list.size();
+        }
+        LinkedList<Integer> newList = new LinkedList<Integer>();
+        int c = list.pop();
+        int counter = 1;
+        while(!list.isEmpty()){
+            if(c == list.getFirst()){
+                counter = counter + 1;
+                list.pop();
+            }
+            else{
+                newList.add(counter);
+                newList.add(c);
+                c = list.pop();
+                counter = 1;
+            }
+        }
+        newList.add(counter);
+        newList.add(c);
+        return recursiveParse(newList, times - 1);
+    }
+    
     public static void Day_9(){
         try {
             Scanner scanner = new Scanner(new File(System.getProperty("user.dir") + "\\Day9Input.txt"));
