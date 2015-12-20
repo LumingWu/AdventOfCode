@@ -1,11 +1,20 @@
 package advent.of.code;
 
+import Components.Adjacency;
+import Components.Dijkstra;
+import Components.Edge;
+import Components.Node;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashMap;
+import java.util.LinkedList;
+import java.util.ListIterator;
 import java.util.Scanner;
 
 public class AdventOfCode {
@@ -19,9 +28,298 @@ public class AdventOfCode {
         Day_3();
         Day_4();
         Day_5();
-        */
         Day_6_2();
+        Day_7();
+        Day_8();
+        */
+        Day_9();
     }
+    public static void Day_9(){
+        try {
+            Scanner scanner = new Scanner(new File(System.getProperty("user.dir") + "\\Day9Input.txt"));
+            LinkedList<Edge> edges = new LinkedList<Edge>();
+            String[] line;
+            while(scanner.hasNextLine()){
+                line = scanner.nextLine().split(" ");
+                edges.add(new Edge(line[0], line[2], Integer.parseInt(line[4])));
+            }
+            Dijkstra dijkstra = new Dijkstra();
+            ArrayList<Node> nodes = dijkstra.convertEdges(edges);
+            //double minimum = Double.POSITIVE_INFINITY, length;
+            double maximum = 0.0, length;
+            LinkedList<Node> list = new LinkedList<Node>();
+            for(Node n : nodes){
+                list.add(n);
+                //length = getShortest(list, n, 0.0);
+                length = getLongest(list, n, 0.0);
+                list.removeLast();
+                //if(length < minimum){
+                    //minimum = length;
+                //}
+                if(length > maximum){
+                    maximum = length;
+                }
+            }
+            //System.out.println("Minimum length: " + minimum);
+            System.out.println("Maximum length: " + maximum);
+            scanner.close();
+        } catch (FileNotFoundException ex) {}
+    }
+    
+    public static double getShortest(LinkedList<Node> list, Node node, double length){
+        if(list.size() == 8){
+            return length;
+        }
+        double minimum = Double.POSITIVE_INFINITY, temp;
+        for(Adjacency a : node.Ajacencies){
+            boolean check = true;
+            ListIterator<Node> iterator = list.listIterator();
+            while(iterator.hasNext()){
+                if(iterator.next().equals(a.Node)){
+                    check = false;
+                }
+            }
+            if(check){
+                list.addLast(a.Node);
+                temp = getShortest(list, a.Node, length + a.Weight);
+                list.removeLast();
+                if(temp < minimum){
+                    minimum = temp;
+                }
+            }
+        }
+        return minimum;
+    }
+    
+    public static double getLongest(LinkedList<Node> list, Node node, double length){
+        if(list.size() == 8){
+            return length;
+        }
+        double maximum = 0, temp;
+        for(Adjacency a : node.Ajacencies){
+            boolean check = true;
+            ListIterator<Node> iterator = list.listIterator();
+            while(iterator.hasNext()){
+                if(iterator.next().equals(a.Node)){
+                    check = false;
+                }
+            }
+            if(check){
+                list.addLast(a.Node);
+                temp = getLongest(list, a.Node, length + a.Weight);
+                list.removeLast();
+                if(temp > maximum){
+                    maximum = temp;
+                }
+            }
+        }
+        return maximum;
+    }
+    
+    public static void Day_8(){
+        try {
+            Scanner scanner = new Scanner(new File(System.getProperty("user.dir") + "\\Day8Input.txt"));
+            String text;
+            int encode = 0;
+            int literals = 0;
+            int memory = 0;
+            int temp;
+            int i, length, state;
+            while(scanner.hasNextLine()){
+                text = scanner.nextLine();
+                length = text.length() - 1;
+                literals = literals + length + 1;
+                encode = encode + length + 5;   /* 1 + 4 = 5 */
+                i = 1;
+                state = 0;
+                char c;
+                while(i < length){
+                    switch(state){
+                        case 0:
+                            if(text.charAt(i) == '\\'){
+                                state = 1;
+                                encode = encode + 1;
+                            }
+                            else{
+                                if(text.charAt(i) == '\"'){
+                                    encode = encode + 1;
+                                }
+                                memory = memory + 1;
+                            }
+                            break;
+                        case 1:
+                            switch(text.charAt(i)){
+                                case '\\':
+                                    memory = memory + 1;
+                                    encode = encode + 1;
+                                    state = 0;
+                                    break;
+                                case '\"':
+                                    memory = memory + 1;
+                                    encode = encode + 1;
+                                    state = 0;
+                                    break;
+                                case 'x':
+                                    state = 2;
+                                    break;
+                                default:
+                                    memory = memory + 2;
+                                    state = 0;
+                                    break;
+                            }
+                            break;
+                        case 2:
+                            c = text.charAt(i);
+                            /* The input has no capital letter. */
+                            if((c > 47 && c < 58) || (c > 96 && c < 103)){
+                                state = 3;
+                            }
+                            else{
+                                if(c == '\\' || c == '\"'){
+                                    encode = encode + 1;
+                                }
+                                memory = memory + 3;
+                                state = 0;
+                            }
+                            break;
+                        case 3:
+                            c = text.charAt(i);
+                            /* The input has no capital letter. */
+                            if((c > 47 && c < 58) || (c > 96 && c < 103)){
+                                state = 0;
+                                memory = memory + 1;
+                            }
+                            else{
+                                if(c == '\\' || c == '\"'){
+                                    encode = encode + 1;
+                                }
+                                memory = memory + 4;
+                                state = 0;
+                            }
+                            break;
+                    }
+                    i = i + 1;
+                }
+                memory = memory + state;
+            }
+            System.out.println("Literal: " + literals + ", Memory: " + memory + ", Encode: " + encode + ", Result: " + (literals - memory) + ", " + (encode - literals));
+            scanner.close();
+        } catch (FileNotFoundException ex) {}
+    }
+    
+    public static void Day_7(){
+        try {
+            Scanner scanner = new Scanner(new File(System.getProperty("user.dir") + "\\Day7Input.txt"));
+            ArrayList<String[]> array = new ArrayList<String[]>();
+            while(scanner.hasNextLine()){
+                array.add(scanner.nextLine().split(" "));
+            }
+            scanner.close();
+            Collections.sort(array, new Comparator<String[]>(){
+
+                @Override
+                public int compare(String[] o1, String[] o2) {
+                    return o1[o1.length - 1].compareTo(o2[o2.length - 1]);
+                }
+            });
+            HashMap<String, ArrayList> map = new HashMap<String, ArrayList>(array.size());
+            int length = array.size();
+            for(int i = 0; i < length; i++){
+                map.put(array.get(i)[array.get(i).length - 1], new ArrayList(Arrays.asList(array.get(i))));
+            }
+            /* Part 2 */
+            map.put("b", new ArrayList(Arrays.asList(46065)));
+            /* Part 2 */
+            String var = "a";
+            System.out.println("The value of variable " + var + " is " + find(map, var));
+        } catch (FileNotFoundException ex) {}
+    }
+    
+    public static int find(HashMap<String, ArrayList> map, String variable){
+        ArrayList expression = map.get(variable);
+        switch(expression.size()){
+            case 1:
+                return (int)expression.get(0);
+            case 3:
+                if(((String)expression.get(0)).charAt(0) < 58){
+                    int value = Integer.parseInt((String)expression.get(0));
+                    map.put(variable, new ArrayList(Arrays.asList(value)));
+                    return value;
+                }
+                else{
+                    int value = find(map, (String)expression.get(0));
+                    map.put(variable, new ArrayList(Arrays.asList(value)));
+                    return value;
+                }
+            case 4:
+                int value = 65535 - find(map, (String)expression.get(1));
+                map.put(variable, new ArrayList(Arrays.asList(value)));
+                return value;
+            case 5:
+                switch(((String)expression.get(1)).charAt(0)){
+                    case 'A':
+                        if(((String)expression.get(0)).charAt(0) < 58){
+                            if(((String)expression.get(2)).charAt(0) < 58){
+                                int value2 = Integer.parseInt((String)expression.get(0)) & Integer.parseInt((String)expression.get(2));
+                                map.put(variable, new ArrayList(Arrays.asList(value2)));
+                                return value2;
+                            }
+                            else{
+                                int value2 = Integer.parseInt((String)expression.get(0)) & find(map, (String)expression.get(2));
+                                map.put(variable, new ArrayList(Arrays.asList(value2)));
+                                return value2;
+                            }
+                        }
+                        else{
+                            if(((String)expression.get(2)).charAt(0) < 58){
+                                int value2 = Integer.parseInt((String)expression.get(2)) & find(map, (String)expression.get(0));
+                                map.put(variable, new ArrayList(Arrays.asList(value2)));
+                                return value2;
+                            }
+                            else{
+                                int value2 = find(map, (String)expression.get(0)) & find(map, (String)expression.get(2));
+                                map.put(variable, new ArrayList(Arrays.asList(value2)));
+                                return value2;
+                            }
+                        }
+                    case 'O':
+                        if(((String)expression.get(0)).charAt(0) < 58){
+                            if(((String)expression.get(2)).charAt(0) < 58){
+                                int value2 = Integer.parseInt((String)expression.get(0)) | Integer.parseInt((String)expression.get(2));
+                                map.put(variable, new ArrayList(Arrays.asList(value2)));
+                                return value2;
+                            }
+                            else{
+                                int value2 = Integer.parseInt((String)expression.get(0)) | find(map, (String)expression.get(2));
+                                map.put(variable, new ArrayList(Arrays.asList(value2)));
+                                return value2;
+                            }
+                        }
+                        else{
+                            if(((String)expression.get(2)).charAt(0) < 58){
+                                int value2 = Integer.parseInt((String)expression.get(2)) | find(map, (String)expression.get(0));
+                                map.put(variable, new ArrayList(Arrays.asList(value2)));
+                                return value2;
+                            }
+                            else{
+                                int value2 = find(map, (String)expression.get(0)) | find(map, (String)expression.get(2));
+                                map.put(variable, new ArrayList(Arrays.asList(value2)));
+                                return value2;
+                            }
+                        }
+                    case 'L':
+                        int value2 = find(map, (String)expression.get(0)) << Integer.parseInt((String)expression.get(2));
+                        map.put(variable, new ArrayList(Arrays.asList(value2)));
+                        return value2;
+                    case 'R':
+                        int value3 = find(map, (String)expression.get(0)) >> Integer.parseInt((String)expression.get(2));
+                        map.put(variable, new ArrayList(Arrays.asList(value3)));
+                        return value3;
+                }
+        }
+        return 0;
+    }
+    
     public static void Day_6_2(){
         try{
             int[][] grid = new int[1000][1000];
@@ -97,6 +395,7 @@ public class AdventOfCode {
                 }
             }
             System.out.println("Total brightness: " + counter);
+            scanner.close();
         } catch(FileNotFoundException ex){}
     }
     
@@ -175,6 +474,7 @@ public class AdventOfCode {
                 }
             }
             System.out.println("Lights lit: " + counter);
+            scanner.close();
         } catch(FileNotFoundException ex){}
     }
     public static void Day_5(){
@@ -236,6 +536,7 @@ public class AdventOfCode {
                 }
             }
             System.out.println("Nice strings: " + counter);
+            scanner.close();
         } catch (FileNotFoundException ex) {}
     }
     
@@ -248,18 +549,6 @@ public class AdventOfCode {
         }
         return counter;
     }
-    /*
-    Santa needs help mining some AdventCoins (very similar to bitcoins) to use as gifts for all the economically forward-thinking little girls and boys.
-
-To do this, he needs to find MD5 hashes which, in hexadecimal, start with at least five zeroes. The input to the MD5 hash is some secret key (your puzzle input, given below) followed by a number in decimal. To mine AdventCoins, you must find Santa the lowest positive number (no leading zeroes: 1, 2, 3, ...) that produces such a hash.
-
-For example:
-
-If your secret key is abcdef, the answer is 609043, because the MD5 hash of abcdef609043 starts with five zeroes (000001dbbfa...), and it is the lowest such number to do so.
-If your secret key is pqrstuv, the lowest number it combines with to make an MD5 hash starting with five zeroes is 1048970; that is, the MD5 hash of pqrstuv1048970 looks like 000006136ef....
-
-Part2: Now find one that starts with six zeroes.
-    */
     public static void Day_4() {
         System.out.println("Day4");
         String input = "yzbqklnj";
@@ -284,36 +573,13 @@ Part2: Now find one that starts with six zeroes.
             }
         } catch (NoSuchAlgorithmException ex) {}
     }
-    /*
-    Santa is delivering presents to an infinite two-dimensional grid of houses.
-
-He begins by delivering a present to the house at his starting location, and then an elf at the North Pole calls him via radio and tells him where to move next. Moves are always exactly one house to the north (^), south (v), east (>), or west (<). After each move, he delivers another present to the house at his new location.
-
-However, the elf back at the north pole has had a little too much eggnog, and so his directions are a little off, and Santa ends up visiting some houses more than once. How many houses receive at least one present?
-
-For example:
-
-> delivers presents to 2 houses: one at the starting location, and one to the east.
-^>v< delivers presents to 4 houses in a square, including twice to the house at his starting/ending location.
-^v^v^v^v^v delivers a bunch of presents to some very lucky children at only 2 houses.
     
-Part2:
-The next year, to speed up the process, Santa creates a robot version of himself, Robo-Santa, to deliver presents with him.
-
-Santa and Robo-Santa start at the same location (delivering two presents to the same starting house), then take turns moving based on instructions from the elf, who is eggnoggedly reading from the same script as the previous year.
-
-This year, how many houses receive at least one present?
-
-For example:
-
-^v delivers presents to 3 houses, because Santa goes north, and then Robo-Santa goes south.
-^>v< now delivers presents to 3 houses, and Santa and Robo-Santa end up back where they started.
-^v^v^v^v^v now delivers presents to 11 houses, with Santa going one direction and Robo-Santa going the other.
-    */
     public static void Day_3(){
         try {
             System.out.println("Day3");
-            String text = new Scanner(new File(System.getProperty("user.dir") + "\\Day3Input.txt")).next();
+            Scanner scanner = new Scanner(new File(System.getProperty("user.dir") + "\\Day3Input.txt"));
+            String text = scanner.next();
+            scanner.close();
             int h = 0, v = 0, h1 = 0, v1 = 0, i = 0, length = text.length(), coordinate;
             HashMap<Integer, HashMap<Integer, Integer>> map = new HashMap<Integer, HashMap<Integer, Integer>>();
             while(i < length){
@@ -385,28 +651,6 @@ For example:
         } catch (FileNotFoundException ex) {}
     }
     
-    /*
-    The elves are running low on wrapping paper, and so they need to submit an order for more. They have a list of the dimensions (length l, width w, and height h) of each present, and only want to order exactly as much as they need.
-
-Fortunately, every present is a box (a perfect right rectangular prism), which makes calculating the required wrapping paper for each gift a little easier: find the surface area of the box, which is 2*l*w + 2*w*h + 2*h*l. The elves also need a little extra paper for each present: the area of the smallest side.
-
-For example:
-
-A present with dimensions 2x3x4 requires 2*6 + 2*12 + 2*8 = 52 square feet of wrapping paper plus 6 square feet of slack, for a total of 58 square feet.
-A present with dimensions 1x1x10 requires 2*1 + 2*10 + 2*10 = 42 square feet of wrapping paper plus 1 square foot of slack, for a total of 43 square feet.
-All numbers in the elves' list are in feet. How many total square feet of wrapping paper should they order?
-    
-Part2:
-The elves are also running low on ribbon. Ribbon is all the same width, so they only have to worry about the length they need to order, which they would again like to be exact.
-
-The ribbon required to wrap a present is the shortest distance around its sides, or the smallest perimeter of any one face. Each present also requires a bow made out of ribbon as well; the feet of ribbon required for the perfect bow is equal to the cubic feet of volume of the present. Don't ask how they tie the bow, though; they'll never tell.
-
-For example:
-
-A present with dimensions 2x3x4 requires 2+2+3+3 = 10 feet of ribbon to wrap the present plus 2*3*4 = 24 feet of ribbon for the bow, for a total of 34 feet.
-A present with dimensions 1x1x10 requires 1+1+1+1 = 4 feet of ribbon to wrap the present plus 1*1*10 = 10 feet of ribbon for the bow, for a total of 14 feet.
-How many total feet of ribbon should they order?    
-    */
     public static void Day_2(){
         try {
             System.out.println("Day2");
@@ -426,44 +670,16 @@ How many total feet of ribbon should they order?
             }
             System.out.println("Surface: " + totalSurface);
             System.out.println("Ribbon length: " + ribbonLength);
+            scanner.close();
         } catch (FileNotFoundException ex) {}
     }
     
-    /*
-     Santa was hoping for a white Christmas, but his weather machine's "snow" function is powered by stars, and he's fresh out! To save Christmas, he needs you to collect fifty stars by December 25th.
-
-Collect stars by helping Santa solve puzzles. Two puzzles will be made available on each day in the advent calendar; the second puzzle is unlocked when you complete the first. Each puzzle grants one star. Good luck!
-
-Here's an easy puzzle to warm you up.
-
-Santa is trying to deliver presents in a large apartment building, but he can't find the right floor - the directions he got are a little confusing. He starts on the ground floor (floor 0) and then follows the instructions one character at a time.
-
-An opening parenthesis, (, means he should go up one floor, and a closing parenthesis, ), means he should go down one floor.
-
-The apartment building is very tall, and the basement is very deep; he will never find the top or bottom floors.
-
-For example:
-
-(()) and ()() both result in floor 0.
-((( and (()(()( both result in floor 3.
-))((((( also results in floor 3.
-()) and ))( both result in floor -1 (the first basement level).
-))) and )())()) both result in floor -3.
-To what floor do the instructions take Santa?
-    
-Part 2:
-Now, given the same instructions, find the position of the first character that causes him to enter the basement (floor -1). The first character in the instructions has position 1, the second character has position 2, and so on.
-
-For example:
-
-) causes him to enter the basement at character position 1.
-()()) causes him to enter the basement at character position 5.
-What is the position of the character that causes Santa to first enter the basement?
-     */
     public static void Day_1(){
         try {
             System.out.println("Day1");
-            String text = new Scanner(new File(System.getProperty("user.dir") + "\\Day1Input.txt")).next();
+            Scanner scanner = new Scanner(new File(System.getProperty("user.dir") + "\\Day1Input.txt"));
+            String text = scanner.next();
+            scanner.close();
             int floor = 0;
             int i = 0;
             int length = text.length();
