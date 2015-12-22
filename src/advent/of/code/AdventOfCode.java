@@ -32,8 +32,89 @@ public class AdventOfCode {
         Day_7();
         Day_8();
         Day_9();
-        */
-        Day_10();
+        Day_10();*/
+        Day_11();
+    }
+    
+    public static void Day_11(){
+        String s = "vzbxkghb";
+        charNode LSC = new charNode();
+        charNode currentC = LSC;
+        LSC.c = s.charAt(s.length() - 1);
+        for(int i = s.length() - 2; i >= 0; i--){
+            charNode newNode = new charNode();
+            newNode.c = s.charAt(i);
+            newNode.right = currentC;
+            currentC.left = newNode;
+            currentC = newNode;
+        }
+        while(true){
+            // Addition
+            currentC = LSC;
+            currentC.c = currentC.c + 1;
+            while(currentC.c == 123){
+                currentC.c = 97;
+                charNode left = currentC.left;
+                if(left == null){
+                    left = new charNode();
+                    left.right = currentC;
+                    currentC.left = left;
+                }
+                else{
+                    left.c = left.c + 1;
+                }
+                currentC = left;
+            }
+            // Get leftmost
+            while(currentC.left != null){
+                currentC = currentC.left;
+            }
+            // Check
+            boolean check1 = false, check2 = true;
+            int[] check3 = {0,0};
+            while(currentC != null){
+                int temp = currentC.c;
+                if(currentC.right != null && currentC.right.c == temp + 1 && currentC.right.right != null && currentC.right.right.c == temp + 2){
+                    check1 = true;
+                }
+                if(temp == 'i' || temp == 'o' || temp == 'l'){
+                    check2 = false;
+                }
+                if(check3[0] == 0){
+                    if(currentC.right != null && currentC.right.c == temp){
+                        check3[0] = temp;
+                    }
+                }
+                else{
+                    if(currentC.right != null && temp != check3[0] && currentC.right.c == temp){
+                        check3[1] = temp;
+                    }
+                }
+                currentC = currentC.right;
+            }
+            if(check1 && check2 && check3[1] != 0){
+                break;
+            }
+        }
+        // Print
+        currentC = LSC;
+        while(currentC.left != null){
+            currentC = currentC.left;
+        }
+        while(currentC != null){
+            System.out.print((char)currentC.c);
+            currentC = currentC.right;
+        }
+        System.out.print("\n");
+    }
+    
+    public static class charNode {
+        
+        public charNode left;
+        public charNode right;
+        public int c;
+        
+        public charNode(){}
     }
     
     public static void Day_10(){
