@@ -16,6 +16,12 @@ import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.ListIterator;
 import java.util.Scanner;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+import org.json.simple.JSONArray;
+import org.json.simple.JSONObject;
+import org.json.simple.parser.JSONParser;
+import org.json.simple.parser.ParseException;
 
 public class AdventOfCode {
     /* 
@@ -32,8 +38,134 @@ public class AdventOfCode {
         Day_7();
         Day_8();
         Day_9();
-        Day_10();*/
+        Day_10();
         Day_11();
+        */
+        Day_12();
+    }
+    
+    public static void Day_12(){
+        try {
+            Scanner scanner = new Scanner(new File(System.getProperty("user.dir") + "\\Day12Input.txt"));
+            String text = scanner.next();
+            scanner.close();
+            int number = 0;
+            /*
+            String[] list = text.split("[^0-9-]");
+            for(String s : list){
+                if(s.length() != 0){
+                    number = number + Integer.parseInt(s);
+                }
+            }
+            System.out.println(number);
+            */
+            /*
+            int index = 0, length = text.length(), left, right, counter;
+            String temp;
+            while(index < length){
+                if(text.charAt(index) == 'r' && index + 1 < length && text.charAt(index + 1) == 'e' && index + 2 < length && text.charAt(index + 2) == 'd'){
+                    left = index - 1;
+                    while(true){
+                        if(text.charAt(left) == '['){
+                            index = index + 2;
+                            break;
+                        }
+                        else if(text.charAt(left) == '{'){
+                            right = index + 3;
+                            counter = 1;
+                            while(true){
+                                if(text.charAt(right) == '{'){
+                                    counter = counter + 1;
+                                }
+                                else if(text.charAt(right) == '}' && counter == 1){
+                                    temp = text.substring(left, right + 1);
+                                    System.out.println(temp);
+                                    String[] list = temp.split("[^0-9-]");
+                                    System.out.println(Arrays.asList(list));
+                                    for(String s : list){
+                                        if(s.length() != 0){
+                                            number = number + Integer.parseInt(s);
+                                        }
+                                    }
+                                    index = right;
+                                    break;
+                                }
+                                else if(text.charAt(right) == '}'){
+                                    counter = counter - 1;
+                                }
+                                right = right + 1;
+                            }
+                            break;
+                        }
+                        left = left - 1;
+                    }
+                }
+                index = index + 1;
+            }I am tired of this non-sense... I found the value that should be ignored to reduce the first answer, still WRONG! Time to use JSON*/
+            JSONParser parser = new JSONParser();
+            try {
+                Object object = parser.parse(text);
+                JSONRecursion(object);
+            } catch (ParseException ex) {
+                Logger.getLogger(AdventOfCode.class.getName()).log(Level.SEVERE, null, ex);
+            }
+            System.out.println(number);
+        } catch (FileNotFoundException ex) {}
+    }
+    
+    public static void JSONRecursion(Object object){
+        int size;
+        if(object instanceof JSONArray){
+            JSONArray o = (JSONArray)object;
+            size = o.size();
+            for(int i = 0; i < size; i++){
+                Object innerObject = o.get(i);
+                if(innerObject instanceof JSONArray){
+                    JSONArray innerO = (JSONArray)innerObject;
+                    if(innerO.size() == 0){
+                        System.out.println(innerO);
+                    }
+                    else{
+                        JSONRecursion(innerO);
+                    }
+                }
+                else{
+                    JSONObject innerO = (JSONObject)innerObject;
+                    if(innerO.size() == 0){
+                        System.out.println(innerO);
+                    }
+                    else{
+                        JSONRecursion(innerO);
+                    }
+                }
+            }
+        }
+        else{
+            JSONObject o = (JSONObject)object;
+            o.size();
+            size = o.size();
+            for(int i = 0; i < size; i++){
+                Object innerObject = o.get(i);
+                if(innerObject instanceof JSONArray){
+                    JSONArray innerO = (JSONArray)innerObject;
+                    if(innerO.size() == 0){
+                        System.out.println(innerO);
+                    }
+                    else{
+                        JSONRecursion(innerO);
+                    }
+                }
+                else{
+                    JSONObject innerO = (JSONObject)innerObject;
+                    if(innerO == null){
+                        System.out.println(innerO);
+                    }
+                    else{
+                        JSONRecursion(innerO);
+                    }
+                }
+            }
+        }
     }
     
     public static void Day_11(){
@@ -113,6 +245,9 @@ public class AdventOfCode {
         public charNode left;
         public charNode right;
         public int c;
+        // This is for Day_12();
+        public int x;
+        public boolean typeNumber;
         
         public charNode(){}
     }
